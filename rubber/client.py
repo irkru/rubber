@@ -21,7 +21,7 @@ class ElasticSearch(object):
             self.index_name = model._meta.app_label
 
         if not self.type:
-            self.type = model._meta.module_name
+            self.type = model._meta.model_name
 
         self.model = model
 
