@@ -33,17 +33,17 @@ class ResourceTest(TestCase):
 
         # Check there is a sensible default
         resource = rubber.Resource('/foo')
-        self.assertEquals('http://localhost:9200/', resource.base_url)
+        self.assertEqual('http://localhost:9200/', resource.base_url)
 
         # Check that django settings are picked up
         rubber.settings.RUBBER_ELASTICSEARCH_URL = 'https://foo.com/'
         resource = rubber.Resource('/foo')
-        self.assertEquals('https://foo.com/', resource.base_url)
+        self.assertEqual('https://foo.com/', resource.base_url)
 
         # Check that empty string can be set as base_url
         rubber.settings.RUBBER_ELASTICSEARCH_URL = ''
         resource = rubber.Resource('/foo')
-        self.assertEquals('', resource.base_url)
+        self.assertEqual('', resource.base_url)
 
     def test_data_to_json(self):
         """
@@ -55,17 +55,17 @@ class ResourceTest(TestCase):
         # with a dict
         data = {'foo':'bar'}
         json_data = json.dumps(data)
-        self.assertEquals(json_data, data_to_json(data))
+        self.assertEqual(json_data, data_to_json(data))
 
         # with a string
         json_data = json.dumps(data)
-        self.assertEquals(json_data, data_to_json(json_data))
+        self.assertEqual(json_data, data_to_json(json_data))
 
         # try a class that implements to_indexed_json
         class Foo(object):
             def to_indexed_json(self):
                 return json_data
-        self.assertEquals(json_data, data_to_json(Foo()))
+        self.assertEqual(json_data, data_to_json(Foo()))
 
         # try a django model
         try:
@@ -73,7 +73,7 @@ class ResourceTest(TestCase):
             class TestModel(models.Model):
                 foo = models.CharField(max_length=3)
             bar = TestModel(foo='bar')
-            self.assertEquals(json_data, data_to_json(bar))
+            self.assertEqual(json_data, data_to_json(bar))
         except ImportError:
             pass
 
@@ -98,8 +98,8 @@ try:
             Checks that when set on a django model, index_name and type are automatically set
             to the app_name / model_name
             """
-            self.assertEquals('tests', self.Article.elasticsearch.index_name)
-            self.assertEquals('article', self.Article.elasticsearch.type)
+            self.assertEqual('tests', self.Article.elasticsearch.index_name)
+            self.assertEqual('article', self.Article.elasticsearch.type)
 
         def test_search(self):
             """
@@ -112,19 +112,19 @@ try:
             q = {'query': {'term': {'user': 'kimchy'}}}
             self.Article.elasticsearch.search(q, toto='titi')
 
-            self.assertEquals(1, len(requestmock.stack))
-            self.assertEquals('http://example.com:9200/tests/article/_search', requestmock.stack[0]['url'])
-            self.assertEquals('GET', requestmock.stack[0]['method'])
-            self.assertEquals('titi', requestmock.stack[0]['kwargs']['toto'])
+            self.assertEqual(1, len(requestmock.stack))
+            self.assertEqual('http://example.com:9200/tests/article/_search', requestmock.stack[0]['url'])
+            self.assertEqual('GET', requestmock.stack[0]['method'])
+            self.assertEqual('titi', requestmock.stack[0]['kwargs']['toto'])
             from rubber.instanceutils import data_to_json
-            self.assertEquals(data_to_json(q), requestmock.stack[0]['kwargs']['data'])
+            self.assertEqual(data_to_json(q), requestmock.stack[0]['kwargs']['data'])
 
             self.Article.elasticsearch.mapping.put({'some': 'mapping'}, toto='titi')
 
-            self.assertEquals(2, len(requestmock.stack))
-            self.assertEquals('http://example.com:9200/tests/article/_mapping', requestmock.stack[1]['url'])
-            self.assertEquals('PUT', requestmock.stack[1]['method'])
-            self.assertEquals('titi', requestmock.stack[1]['kwargs']['toto'])
+            self.assertEqual(2, len(requestmock.stack))
+            self.assertEqual('http://example.com:9200/tests/article/_mapping', requestmock.stack[1]['url'])
+            self.assertEqual('PUT', requestmock.stack[1]['method'])
+            self.assertEqual('titi', requestmock.stack[1]['kwargs']['toto'])
 
         def test_auto_index(self):
             """
@@ -151,7 +151,7 @@ try:
             self.assertIsNotNone(article.elasticsearch)
             from rubber.resource import InstanceResource
             self.assertTrue(isinstance(article.elasticsearch, InstanceResource))
-            self.assertEquals('tests/article/123', article.elasticsearch.path)
+            self.assertEqual('tests/article/123', article.elasticsearch.path)
             
             from rubber import resource
             requestmock = RequestMock()
@@ -159,15 +159,15 @@ try:
 
             # Check that put() passes the article instance as data
             article.elasticsearch.put()
-            self.assertEquals(1, len(requestmock.stack))
-            self.assertEquals("PUT", requestmock.stack[0]['method'])
-            self.assertEquals('{}', requestmock.stack[0]['kwargs']['data'])
+            self.assertEqual(1, len(requestmock.stack))
+            self.assertEqual("PUT", requestmock.stack[0]['method'])
+            self.assertEqual('{}', requestmock.stack[0]['kwargs']['data'])
 
             # Check that post() passes the article instance as data
             article.elasticsearch.post()
-            self.assertEquals(2, len(requestmock.stack))
-            self.assertEquals("POST", requestmock.stack[1]['method'])
-            self.assertEquals('{}', requestmock.stack[1]['kwargs']['data'])
+            self.assertEqual(2, len(requestmock.stack))
+            self.assertEqual("POST", requestmock.stack[1]['method'])
+            self.assertEqual('{}', requestmock.stack[1]['kwargs']['data'])
 
         def test_response(self):
             """
@@ -182,7 +182,7 @@ try:
 
             response = self.Article.elasticsearch.search({})
             
-            self.assertEquals(2, response.json['took'])
+            self.assertEqual(2, response.json['took'])
 
             from rubber.response import Response
             self.assertTrue(isinstance(response, Response))
@@ -229,9 +229,9 @@ class HitCollectionTest(TestCase):
         from rubber.response import HitCollection
         collection = HitCollection(response['hits'])
 
-        self.assertEquals(2, len(collection))
-        self.assertEquals('guillaume', collection[0].source.username)
-        self.assertEquals(['guillaume', 'stephane'], [hit.source.username for hit in collection])
+        self.assertEqual(2, len(collection))
+        self.assertEqual('guillaume', collection[0].source.username)
+        self.assertEqual(['guillaume', 'stephane'], [hit.source.username for hit in collection])
 
 class HitTest(TestCase):
     def test_init(self):
@@ -244,13 +244,13 @@ class HitTest(TestCase):
             "_source" : {"username": "guillaume", "first_name": "", "last_name": "", "is_active": True, "is_superuser": False, "is_staff": False, "last_login": "2012-08-02T08:30:11.562", "groups": [], "user_permissions": [], "password": "pbkdf2_sha256$10000$M1nRKJfbvdQf$ouX5u9FOUF/MKhhwuwYbiuoVidFITsBrEstGBB4mzZA=", "email": "", "date_joined": "2012-08-02T08:30:11.562"}
         }
         hit = Hit(data)
-        self.assertEquals('auth', hit.index)
-        self.assertEquals('auth', hit._index)
-        self.assertEquals('user', hit._type)
-        self.assertEquals('user', hit.type)
-        self.assertEquals('6', hit._id)
-        self.assertEquals('6', hit.id)
-        self.assertEquals('guillaume', hit.source.username)
+        self.assertEqual('auth', hit.index)
+        self.assertEqual('auth', hit._index)
+        self.assertEqual('user', hit._type)
+        self.assertEqual('user', hit.type)
+        self.assertEqual('6', hit._id)
+        self.assertEqual('6', hit.id)
+        self.assertEqual('guillaume', hit.source.username)
 
 class ResponseTest(TestCase):
     def setUp(self):

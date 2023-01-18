@@ -1,7 +1,7 @@
 class Hit(object):
     def __init__(self, dict_response):
         self.attributes = {}
-        for key, val in dict_response.items():
+        for key, val in list(dict_response.items()):
             if isinstance(val, dict):
                 self.attributes[key] = self._hit_or_val(val)
             elif isinstance(val, list):
@@ -19,9 +19,9 @@ class Hit(object):
     def __getattribute__(self, name):
         default_impl = super(Hit, self).__getattribute__
         attributes = default_impl('attributes')
-        if attributes.has_key(name):
+        if name in attributes:
             return attributes.get(name)
-        if not name.startswith('_') and attributes.has_key("_%s"%name):
+        if not name.startswith('_') and "_%s"%name in attributes:
             return attributes.get("_%s"%name)
         return default_impl(name)
     

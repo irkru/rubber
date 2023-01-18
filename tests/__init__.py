@@ -1,1 +1,1 @@
-import alltests as tests
+from . import alltests as tests

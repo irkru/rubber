@@ -30,7 +30,7 @@ class ElasticSearch(object):
                 from django.db.models.signals import post_save, post_delete
                 post_save.connect(self.django_post_save, sender=model)
                 post_delete.connect(self.django_post_delete, sender=model)
-            except ImportError, e:
+            except ImportError as e:
                 pass
 
         setattr(model, name, ElasticSearchDescriptor(self))
@@ -56,8 +56,8 @@ class ElasticSearch(object):
         default_impl = super(ElasticSearch, self).__getattribute__
         try:
             return default_impl(name)
-        except AttributeError, e:
-            if not name in HANDLERS.keys():
+        except AttributeError as e:
+            if not name in list(HANDLERS.keys()):
                 raise e
             wrapper = Response
             if name == 'search': wrapper=self.wrapsearchresponse

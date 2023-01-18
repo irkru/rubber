@@ -1,7 +1,7 @@
 import requests
 from rubber import settings
 from rubber.testutils import ResponseMock
-from instanceutils import data_to_json
+from .instanceutils import data_to_json
 
 class Resource(object):
     def __init__(self, path, base_url=None, wrapper=None, raise_on_error=False):
@@ -29,7 +29,7 @@ class Resource(object):
         path = self.base_url + self.path
         try:
             response = requests.request(method, path, data=data_to_json(data), **kwargs)
-        except Exception, e:
+        except Exception as e:
             if self.raise_on_error:
                 raise
             import logging
